@@ -4,15 +4,41 @@ from socket import *
 serverName = 'localhost'
 serverPort = 12000
 clientSocket = socket(AF_INET, SOCK_DGRAM)
+choose =int(input('1:stop and wait \n2:Go back N\n3:selective repeate \nchoose sending method: '))
 message = input('Input lowercase sentence:').encode('ascii')
 l = len(message)
 print(l)
 i = 0
-while i < l:
-    clientSocket.sendto(message[i:i+4], (serverName, serverPort))
-    i += 4
-    modifiedMessage, serverAddress = clientSocket.recvfrom(4)
-    print(modifiedMessage.decode('ascii'))
+if( choose == 1):
+    while i < l:
+        clientSocket.sendto(message[i:i+1], (serverName, serverPort))
+        i += 1
+        modifiedMessage, serverAddress = clientSocket.recvfrom(1)
+        print(modifiedMessage.decode('ascii'))
 
-# clientSocket.sendto(message, (serverName, serverPort))
-clientSocket.close()
+        #clientSocket.sendto(message, (serverName, serverPort))
+    clientSocket.close()
+elif(choose == 2):
+    window=int(input('please choose the window size:'))
+    while i < l:
+        clientSocket.sendto(message[i:i+window], (serverName, serverPort))
+        i += window
+        modifiedMessage, serverAddress = clientSocket.recvfrom(window)
+        print(modifiedMessage.decode('ascii'))
+
+        # clientSocket.sendto(message, (serverName, serverPort))
+    clientSocket.close()
+
+elif(choose == 3):
+    window=int(input('please choose the window size:'))
+    while i < l:
+        clientSocket.sendto(message[i:i+window], (serverName, serverPort))
+        i += window
+        modifiedMessage, serverAddress = clientSocket.recvfrom(window)
+        print(modifiedMessage.decode('ascii'))
+
+        # clientSocket.sendto(message, (serverName, serverPort))
+    clientSocket.close()
+
+else:
+    print("invalid choice")

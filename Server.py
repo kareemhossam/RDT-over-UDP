@@ -1,18 +1,16 @@
 from socket import *
 import os
-
-#mybranch
 serverPort = 12000
 serverSocket = socket(AF_INET, SOCK_DGRAM)
 serverSocket.bind(('', serverPort))
 print("The server is ready to receive")
 while True:
-    message, clientAddress = serverSocket.recvfrom(4)
+    message, clientAddress = serverSocket.recvfrom(1000)
     modifiedMessage = message.upper()
     serverSocket.sendto(modifiedMessage, clientAddress)
     print('\nrecieving message')
     print('recieved {0} bytes from ${1}'.format(len(modifiedMessage), clientAddress))
-    print('the message is:'+ modifiedMessage.decode('ascii'))
+    print('the message is:'+ modifiedMessage.decode())
     if modifiedMessage:
     	sent=serverSocket.sendto(modifiedMessage, clientAddress)
     	print('{0} bytes are sent back to the client {1}\n'.format(sent,clientAddress))

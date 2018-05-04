@@ -1,45 +1,51 @@
 from socket import *
+from sys import argv
 
-#my branch
-serverName = 'localhost'
-serverPort = 12000
-clientSocket = socket(AF_INET, SOCK_DGRAM)
-choose =int(input('1:stop and wait \n2:Go back N\n3:selective repeate \nchoose sending method: '))
-message = input('Input lowercase sentence:').encode()
-l = len(message)
-print(l)
-i = 0
-if( choose == 1):
-    window=1
-    while i < l:
-        clientSocket.sendto(message[i:i+window], (serverName, serverPort))
-        i += window
-        modifiedMessage, serverAddress = clientSocket.recvfrom(window)
-        #print(modifiedMessage.decode('ascii'))
+SEGMENT_SIZE = 100
 
-        #clientSocket.sendto(message, (serverName, serverPort))
-    clientSocket.close()
-elif(choose == 2):
-    window=int(input('please choose the window size:'))
-    while i < l:
-        clientSocket.sendto(message[i:i+window], (serverName, serverPort))
-        i += window
-        modifiedMessage, serverAddress = clientSocket.recvfrom(window)
-        #print(modifiedMessage.decode('ascii'))
+if __name__ == '__main__':
 
-        # clientSocket.sendto(message, (serverName, serverPort))
-    clientSocket.close()
+    if len(argv) == 1:
+        print('Will use stop and wait by default, otherwise USAGE: '
+              'python3 Client.py <1:Stop and Wait, 2:Selective repeat, '
+              '3: Go Back N>')
+    protocol = argv[1]
 
-elif(choose == 3):
-    window=int(input('please choose the window size:'))
-    while i < l:
-        clientSocket.sendto(message[i:i+window], (serverName, serverPort))
-        i += window
-        modifiedMessage, serverAddress = clientSocket.recvfrom(window)
-        #print(modifiedMessage.decode('ascii'))
+    serverName = 'localhost'
+    PortSend = 12000
+    PortRecv = 12001
+    listen = (serverName, PortRecv)
+    dest = (serverName, PortSend)
 
-        # clientSocket.sendto(message, (serverName, serverPort))
-    clientSocket.close()
+    send_sock = socket(AF_INET, SOCK_DGRAM)
+    recv_sock = socket(AF_INET, SOCK_DGRAM)
 
-else:
-    print("invalid choice")
+    recv_sock.bind(listen)
+    recv_sock.settimeout(1)
+
+    offset = 0
+    seq = 0
+
+    with open('payload.txt') as f:
+        content = f.read()
+
+    while offset < len(content):
+        if offset + SEGMENT_SIZE > len(content):
+            segment = content[offset:]
+        else:
+            segment = content[offset:offset + SEGMENT_SIZE]
+        offset += SEGMENT_SIZE
+
+        ack_received = False
+        while not ack_received:
+            send_sock.sendto(str(seq) + segment, dest)
+            try:
+                message, address = recv_sock.recvfrom(4096)
+            except timeout:
+                print("Timeout")
+            else:
+                print(message)
+                ack_seq = message[3]
+                if ack_seq == str(seq):  # assuming max number of ACKs is 10
+                    ack_received = True
+        seq = 1 - seq

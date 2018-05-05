@@ -9,7 +9,8 @@ if __name__ == '__main__':
         print('Will use stop and wait by default, otherwise USAGE: '
               'python3 Client.py <1:Stop and Wait, 2:Selective repeat, '
               '3: Go Back N>')
-    protocol = argv[1]
+    else:
+        protocol = argv[1]
 
     serverName = 'localhost'
     PortSend = 12000
@@ -38,9 +39,11 @@ if __name__ == '__main__':
 
         ack_received = False
         while not ack_received:
-            send_sock.sendto(str(seq) + segment, dest)
+            message = str(seq)+segment
+            send_sock.sendto(message.encode(), dest)
             try:
                 message, address = recv_sock.recvfrom(4096)
+                received_message = message.decode()
             except timeout:
                 print("Timeout")
             else:

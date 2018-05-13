@@ -7,12 +7,12 @@ We will implement the folloeing data transfer protocols
   3- Selective Repeat
 
 
-Whats working:
+Whats working: 
  Stop and Wait protocol
  
 Not working:
-  Go Back N
+  Go Back N, 
   Selective repeat
   
- Developer Note:
+ Developer Note: 
   Stay tuned for Fixes this Summer :D
